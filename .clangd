@@ -1,0 +1,4 @@
+CompileFlags:
+    Add: [-std=c23, -Wall, -Wextra]
+    Remove: [-xobjective-c++-header]
+    Compiler: gcc

@@ -4,21 +4,27 @@ STD = -std=c23
 BUILD_TYPE ?= debug
 
 CFLAGS_BASE = -Wall -Wextra $(STD)
-
 CFLAGS_DEBUG = $(CFLAGS_BASE) -g -DDEBUG -O0
 CFLAGS_PROD = $(CFLAGS_BASE) -O3 -DNDEBUG
 
+LFLAFGS_BASE = -lm -lSDL2
+LFLAGS_DEBUG = $(LFLAFGS_BASE)
+LFLAGS_PROD = $(LFLAGS_BASE) -flto -O3 -march=native
+
 ifeq ($(BUILD_TYPE),debug)
-    CFLAGS = $(CFLAGS_DEBUG)
-    TARGET_DIR = debug
+	CFLAGS = $(CFLAGS_DEBUG)
+	LFLAGS = $(LFLAGS_DEBUG)
+	TARGET_DIR = debug
 else ifeq ($(BUILD_TYPE),prod)
-    CFLAGS = $(CFLAGS_PROD)
-    TARGET_DIR = prod
+	CFLAGS = $(CFLAGS_PROD)
+	LFLAGS = $(LFLAGS_PROD)
+	TARGET_DIR = prod
 else
-    $(error Invalid BUILD_TYPE: $(BUILD_TYPE). Use 'debug' or 'prod')
+	$(error Invalid BUILD_TYPE: $(BUILD_TYPE). Use 'debug' or 'prod')
 endif
 
-TARGET = dist/$(TARGET_DIR)/hello
+TARGET_DIR := dist/$(TARGET_DIR)
+TARGET = $(TARGET_DIR)/hello
 
 SRCS := $(wildcard src/*.c)
 OBJS = $(SRCS:src/%.c=$(TARGET_DIR)/%.o)
@@ -35,7 +41,7 @@ $(TARGET_DIR):
 
 $(TARGET): $(OBJS)
 	@mkdir -p $(dir $@)
-	$(CC) $(OBJS) -o $(TARGET)
+	$(CC) $(LFLAGS) $(OBJS) -o $(TARGET)
 
 $(TARGET_DIR)/%.o: src/%.c | $(TARGET_DIR)
 	@mkdir -p $(dir $@)
