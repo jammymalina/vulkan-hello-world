@@ -3,12 +3,12 @@ STD = -std=c23
 
 BUILD_TYPE ?= debug
 
-CFLAGS_BASE = -Wall -Wextra $(STD)
+CFLAGS_BASE = -Wall -Wextra $(STD) -DVK_NO_PROTOTYPES
 CFLAGS_DEBUG = $(CFLAGS_BASE) -g -DDEBUG -O0
 CFLAGS_PROD = $(CFLAGS_BASE) -O3 -DNDEBUG
 
-LFLAFGS_BASE = -lm -lSDL2
-LFLAGS_DEBUG = $(LFLAFGS_BASE)
+LFLAGS_BASE = -lm -lSDL2
+LFLAGS_DEBUG = $(LFLAGS_BASE)
 LFLAGS_PROD = $(LFLAGS_BASE) -flto -O3 -march=native
 
 ifeq ($(BUILD_TYPE),debug)
@@ -26,7 +26,7 @@ endif
 TARGET_DIR := dist/$(TARGET_DIR)
 TARGET = $(TARGET_DIR)/hello
 
-SRCS := $(wildcard src/*.c)
+SRCS := $(wildcard src/*.c src/*/*.c)
 OBJS = $(SRCS:src/%.c=$(TARGET_DIR)/%.o)
 
 INC_DIRS := src $(wildcard src/*/ src/*/*/)
@@ -48,7 +48,10 @@ $(TARGET_DIR)/%.o: src/%.c | $(TARGET_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf debug prod
+	rm -rf dist
+
+mem-check: $(TARGET)
+	@valgrind --leak-check=yes $(TARGET)
 
 rebuild: clean all
 
@@ -60,4 +63,4 @@ config:
 	@echo "Object files:"
 	@echo $(OBJS)
 
-.PHONY: all clean rebuild config
+.PHONY: all clean rebuild config mem-check

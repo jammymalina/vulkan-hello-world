@@ -26,4 +26,4 @@
 
 typedef const char* ErrorMessage;
 
-#endif  // RESULT_H
+#endif
